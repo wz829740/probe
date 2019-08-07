@@ -1,227 +1,155 @@
-/* global chrome */
-/* global PerformanceObserver */
-/**
- * @file
- */
-// 性能探针
+// 性能
 /**
  * metrics
  */
-import ttiPolyfill from 'tti-polyfill';
-import metrics from '../metrics';
+import metrics from './metrics';
+import { report } from '../report';
+import { getVisibleRects, getResolution } from '../utils';
 
-/**
- * TODO
- * 不止图片资源、ifram\video\字体等,还有gif判断等
- */
 export default class Perf {
     constructor() {
-        this.progress = [];
-        this.resource = [];
-        this.hasPaint = false; // observe/first paint是否已经执行
-        this.hasOnload = false; // onload是否已经执行
+        this.done = false; // 性能上报完成
+        this.isFull = true; // 指标计算完整
+        this.clientType = '';
+        this.isSupport = true; // 是否支持计算白屏首屏
+        this.deadline = 0; // 等待终点时间
     }
 
-    getFpByObserver(list) {
-        list.forEach(({name, startTime, duration}) => {
-            let time = startTime + duration;
-            if (name === 'first-paint') {
-                this.hasPaint = true;
-                metrics.perfFp = time;
-            }
-            if (name === 'first-contentful-paint') {
-                metrics.fcp = time;
-                if (!this.hasOnload) {
-                    // 先执行paint 通常情况
-                    metrics.perfFmp = time;
-                } else {
-                    // 先执行onload 页面资源极少或使用缓存时
-                    metrics.perfFp = performance.timing.domLoading - performance.timing.navigationStart;
-                    metrics.perfFmp = metrics.perfFp;
-                    // onload执行太快，需要重新获取结果
-                    this.getResult();
-                }
-            }
-        });
-    }
-
-    getImgResource() {
-        let rss = performance.getEntriesByType('resource');
-        let imgs = rss.filter(item => item.initiatorType = 'img');
-        let rects = this.getVisibleRects();
-        if (imgs.length === 0) {
-            metrics.perfFmp = metrics.perfFp;
+    perfMonitor() {
+        let types = ['paint', 'navigation'];
+        this.deadline = performance.timing.navigationStart + 60000; // 最长等待1min
+        try {
+            this.perfObserver = new PerformanceObserver(list => {
+                let entries = list.getEntries();
+                entries.forEach(item => {
+                    const { startTime, duration, entryType } = item;
+                    if (item.name === 'first-paint') {
+                        metrics.firstPaint = startTime;
+                    }
+                    if (item.name === 'first-contentful-paint') {
+                        metrics.firstScreen = startTime;
+                    }
+                    if (entryType === 'navigation') {
+                        !this.done && this.getResult();
+                    }
+                });
+            }).observe({
+                entryTypes: types
+            });
+        } catch (e) {
+            this.isSupport = false;
             return;
         }
-        imgs.forEach(({name, startTime, duration}) => {
-            let time = startTime + duration;
-            if (rects.includes(name) && time > metrics.perfFmp) {
-                metrics.perfFmp = time;
-            }
-            this.resource.push({
-                name,
-                duration,
-                startTime
+    }
+    getFirstScreenImg() {
+        // iphone上uc等浏览器不支持
+        try {
+            let rss = performance.getEntriesByType('resource');
+            let rects = getVisibleRects();
+            rss.forEach(({ initiatorType, responseEnd, name }) => {
+                if (rects.includes(name) && responseEnd > metrics.firstScreen) {
+                    metrics.firstScreen = responseEnd;
+                }
             });
-        });
-    }
-    getFpByRaf() {
-        let fpt = Date.now() - performance.timing.navigationStart;
-        metrics.rafFp = fpt;
-        // console.log('raf计算白屏：', fpt);
-    }
-
-    // 判断dom元素是否在可视区内
-    isEleVisible(element) {
-        let elRect = element.getBoundingClientRect();
-        let intersect = false;
-        intersect = {
-            top: Math.max(elRect.top, 0),
-            left: Math.max(elRect.left, 0),
-            bottom: Math.min(elRect.bottom, (window.innerHeight || document.documentElement.clientHeight)),
-            right: Math.min(elRect.right, (window.innerWidth || document.documentElement.clientWidth))};
-        if (intersect.bottom <= intersect.top || intersect.right <= intersect.left) {
-            intersect = false;
-        } else {
-            intersect = (intersect.bottom - intersect.top) * (intersect.right - intersect.left);
+        } catch (e) {
+            this.isSupport = false;
+            return;
         }
-        return intersect;
-    }
-
-    getVisibleRects() {
-        const elements = document.getElementsByTagName('*');
-        let self = this;
-        let re = /url\(.*(http.*)\)/ig;
-        let visibleRects = [];
-        for (let i = 0; i < elements.length; i++) {
-            let el = elements[i];
-            let style = window.getComputedStyle(el);
-            let area = self.isEleVisible(el);
-            if (el.tagName === 'IMG' && area) {
-                // 可见图片
-                visibleRects.push(el.src);
-            }
-            if (el.style && el.style['background-image'] && area) {
-                let matches = re.exec(style['background-image']);
-                if (matches && matches.length > 1) {
-                    visibleRects.push(matches[1].replace('"', ''));
-                }
-            }
-            if ((el.tagName === 'IMG' || el.style['background-image']) && area) {
-                if (!self.progress.find(item => item.name === el.src)) {
-                    self.progress.push({
-                        name: el.src,
-                        area: area
-                    });
-                }
-            }
-            if (el.tagName === 'IFRAME') {
-                console.log(el)
-            }
-        }
-        return visibleRects;
-    }
-
-    getDCL() {
-        metrics.domEnd = Date.now() - performance.timing.navigationStart;
     }
 
     afterOnLoad() {
-        this.hasOnload = true;
-        let naviStart = performance.timing.navigationStart;
-        metrics.onload = Date.now() - naviStart;
-        // 确保firstpaint执行完再输出最终结果
-        if (this.hasPaint) {
-            this.getResult();
-        }
+        // 可以计算首屏图片时间
+        this.getFirstScreenImg();
+    }
+
+    clearListener() {
+        window.removeEventListener('load', this.afterOnLoad);
+    }
+
+    disconnect(observer) {
+        // 页面卸载时执行
+        try {
+            observer && observer.disconnect();
+        } catch (error) {}
     }
 
     getResult() {
-        this.getTTI().then(() => {
-            this.getImgResource();
-            this.getSpeedIndex();
-            this.getMetrics();
-        });
+        this.getMetrics();
+        this.disconnect(this.perfObserver);
+        this.clearListener();
     }
 
     getMetrics() {
-        const perf = performance.timing;
-        const naviStart = perf.navigationStart;
-        metrics.tcp = perf.connectEnd - perf.connectStart;
-        metrics.dns = perf.domainLookupEnd - perf.domainLookupStart;
-        metrics.net = perf.responseEnd - perf.requestStart;
-        metrics.comEnd = perf.loadEventEnd - naviStart;
-        metrics.ftt = perf.domInteractive - naviStart;
+        const { domComplete, connectStart, domLoading, domainLookupStart, responseEnd, requestStart, loadEventEnd, domInteractive, navigationStart, responseStart, domContentLoadedEventEnd } = performance.timing;
+        if (loadEventEnd === 0 && +new Date() < this.deadline) {
+            // safari等不支持观察navigation触发loadEventEnd，轮询，但最多等待1min
+            this.waitUntilEnd();
+            return;
+        }
+        metrics.tcp = connectStart - navigationStart;
+        metrics.dns = domainLookupStart - navigationStart;
+        metrics.timeToFirstRequest = requestStart - navigationStart;
+        metrics.complete = loadEventEnd - navigationStart;
+        metrics.domInteractive = domInteractive - navigationStart;
+        metrics.timeToFirstByte = responseStart - requestStart; // TTFB 后端耗时
+        metrics.frontEndTime = loadEventEnd - responseEnd; // 前端总共耗时
+        metrics.domTime = domContentLoadedEventEnd - domLoading; // dom耗时
+        metrics.srcTime = domComplete - domInteractive; // 资源耗时
+        // metrics.ren = loadEventEnd - responseEnd;
+        getResolution(metrics);
         this.formatMetrics(metrics);
+        this.done = true;
     }
 
-    getTTI() {
-        return ttiPolyfill.getFirstConsistentlyInteractive().then(tti => {
-            metrics.tti = tti;
-        });
-    }
 
-    // 跟踪输入延迟FID
-    getFID() {
-        const inputs = document.getElementsByTagName('input');
-        [].forEach.call(inputs, function (input) {
-            input.addEventListener('click', ev => {
-                const lag = performance.now() - ev.timeStamp;
-                if (lag > 100) {
-                    console.log('输入延迟');
-                }
-            });
-        });
+    // beforeUnload() {
+    //     if (!this.done) {
+    //         // 未正常上报，1.秒关页面 2.等到一半放弃 上报可能不全的性能数据
+    //         if (+new Date() - performance.timing.navigationStart > 1000) {
+    //             this.getResult();
+    //         }
+    //     }
+    // }
+
+    waitUntilEnd() {
+        let waiting = +new Date() < this.deadline;
+        if (performance.timing.loadEventEnd === 0 || waiting) {
+            this.timer = setTimeout(this.waitUntilEnd.bind(this), 300);
+        } else {
+            clearTimeout(this.timer);
+            if (!waiting) {
+                !this.done && this.getResult();
+            }
+        }
     }
 
     formatMetrics() {
+        if (metrics.firstPaint === 0 && this.isSupport) {
+            // 比如页面无内容时，始终拿不到fp
+            metrics.firstPaint = performance.timing.domLoading - performance.timing.navigationStart;
+        }
+        if (metrics.firstScreen <= metrics.firstPaint) {
+            // 首屏白屏时间差不多
+            metrics.firstScreen = metrics.firstPaint;
+        }
         for (let item in metrics) {
-            metrics[item] = Math.round(metrics[item]);
-        }
-        console.log(metrics);
-        let img = new Image;
-        let params = [];
-        for(let key in metrics) {
-            params.push(`${key}=${encodeURIComponent(metrics[key])}`);
-        }
-        img.onload = () => img = null;
-        img.src = `${"http://localhost:8080/perf"}?${params.join('&')}`;
-
-    }
-
-    getSpeedIndex() {
-        let progress = this.progress;
-        let resource = this.resource;
-        let total = progress.reduce((accu, cur) => accu + cur.area, 0);
-        let accumulated = 0;
-        for (let j = 0; j < progress.length; j++) {
-            accumulated += progress[j].area;
-            progress[j].progress = accumulated / total;
-        }
-        let lastProgress = 0;
-        let speedIndex = 0;
-        progress.forEach(item => {
-            let target = resource.find(re => re.name === item.name);
-            if (target) {
-                item.startTime = target.startTime || 0;
-                item.duration = target.duration || 0;
+            if (item === 'page') {
+                continue;
             }
-        });
-        if (progress.length) {
-            for (let i = 0; i < progress.length; i++) {
-                if (lastProgress < 1 && progress[i].duration) {
-                    speedIndex += (1 - lastProgress) * progress[i].duration;
-                    lastProgress = progress[i].progress;
-                }
+            if (metrics[item] < 0) {
+                // 未完成页面加载的情况,所以某些指标缺省
+                // this.isFull = false;
+                // delete metrics[item];
+                return;
+            } else {
+                metrics[item] = Math.round(metrics[item]);
             }
-        } else {
-            speedIndex = metrics.perfFp;
         }
-        metrics.psi = speedIndex;
+        if (!this.isFull) {
+            // 未完成指标计算
+            metrics.isFinish = 0;
+        }
+        metrics.type = 'perf';
+        report(metrics);
     }
-    /**
-     * TODO
-     * 不止图片资源、ifram\video\字体等,还有gif判断等
-     */
-    // TODO 用户逗留时长
 }

@@ -1,31 +1,36 @@
 /**
  * 上报函数
  */
-export function report (url, data) {
-    let params = [];
-    for(let key in data) {
-        params.push(`${key}=${data[key]}`);
+import config from '../probe.config';
+
+export function report(data) {
+    let { url, alias, common } = config;
+    if (!url) {
+        console.log(data)
+        return;
     }
-    let urlStr = `${url}?${params.join('&')}`;
-    if(urlStr.length < 2083) {
-        reportByImg(url, data);
-    } else if(navigator.sendBeacon) {
-        reportBySendBeacon(url, data);
-    } else {
-        reportByXhr(url, data);
+    for (let key in alias) {
+        if (data[key]) {
+            data[alias[key]] = data[key];
+            delete data[key];
+        }
     }
+    if (data) {
+        data = Object.assign(data, common);
+    }
+    reportByImg(url, data);
 }
+// img标签上报
 function reportByImg(url, data) {
-    // let img = document.createElement('img');
     let img = new Image;
     let params = [];
-    for(let key in data) {
+    for (let key in data) {
         params.push(`${key}=${encodeURIComponent(data[key])}`);
     }
-    img.onload = () => img = null;
     img.src = `${url}?${params.join('&')}`;
 }
-function reportByXhr(url, data, headers={}) {
+// xhr上报
+function reportByXhr(url, data, headers = {}) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url, false);
     // 跨域是否带cookie
@@ -35,6 +40,7 @@ function reportByXhr(url, data, headers={}) {
     });
     xhr.send(JSON.stringify(data));
 }
+// sendBeacon上报
 function reportBySendBeacon(url, data) {
     let headers = {
         type: 'application/x-www-form-urlencoded'

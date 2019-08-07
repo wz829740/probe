@@ -2,7 +2,7 @@ import babel from "rollup-plugin-babel";
 import resolve from 'rollup-plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
-import { uglify } from 'rollup-plugin-uglify';
+import serve from 'rollup-plugin-serve'
 
 export default {
     input: 'src/index.js',
@@ -12,12 +12,16 @@ export default {
         name: 'probe'
     },
     plugins: [
+        serve({
+            open: true,
+            openPage: '/test/index.html',
+            contentBase: ['.', 'test']
+        }),
         resolve(),
         commonjs(),
         eslint({
             exclude: 'node_modules/**'
         }),
-        uglify(),
         babel({
             exclude: 'node_modules/**'
         })
