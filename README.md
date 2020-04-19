@@ -5,6 +5,8 @@
 ``` // options说明
     url: '', // 上报地址
     // 其他参数
+    perf: true, // 上报perf
+    err: true, // 上报error
     common: {
         task: '任务名', // 非必须自定义参数
         app: 'app名', // 非必须自定义参数
@@ -27,6 +29,10 @@
         resolutionHeight: 'h'  // 分辨率高度
     }
 ```
+
+### probe.config.js配置文件合法性校验
+- npm run check
+
 ### 运行
 - npm run build
 - 将dist目录下生成的probe.js引入到项目html的script标签最顶部
@@ -39,5 +45,8 @@
 </script>
 ```
 
-### 测试
-- npm run dev
+### 测试开发
+- npm run test
+
+
+

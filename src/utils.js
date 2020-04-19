@@ -58,6 +58,5 @@ export function getVisibleRects() {
 export function getResolution(metrics) {
     let screen = window && window.screen;
     let { width, height } = screen;
-    metrics.resolutionWidth = width;
-    metrics.resolutionHeight = height;
+    return {width, height};
 }

@@ -10,22 +10,20 @@ export default {
         let isPhone = (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i));
         let clientType = isPhone ? 'mobile' : 'web';
         config.common.page = page;
-        config.common.client_type = clientType;
+        config.common.clientType = clientType;
         config.sample = sample;
         let errors = new Errors();
         let perf = new Perf();
-        perf.clientType = clientType;
-        /**
-         * 页面发生错误
-         */
-        window.addEventListener('error', err => errors.watchJsErr(err));
-        // perf相关
-        perf.perfMonitor(); // 启动性能监听
-        window.addEventListener('load', perf.afterOnLoad.bind(perf));
-        /**
-         * 监听promise被reject但未处理的错误
-         */
-        window.addEventListener('unhandledrejection', err => errors.unhandledRej(err));
+        // perf.clientType = clientType;
+        if (config.perf) {
+            perf.perfMonitor();
+            window.addEventListener('load', perf.afterOnLoad.bind(perf));
+        }
+        // err
+        if (config.err) {
+            window.addEventListener('error', err => errors.watchJsErr(err));
+            window.addEventListener('unhandledrejection', err => errors.unhandledRej(err));
+        }
         /**
          * 监听页面卸载
          */
@@ -33,8 +31,6 @@ export default {
 
         document.addEventListener('unload', event => {
             window.removeEventListener('error');
-            window.removeEventListener('load');
-            // document.removeEventListener('DOMContentLoaded');
             // window.removeEventListener('unhandledrejection')
         });
     }

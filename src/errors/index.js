@@ -5,11 +5,10 @@
  */
 
 import { report } from '../report';
+import { getResolution } from '../utils';
 export default class Errors {
     constructor() {
-        // 分辨率
-        let screen = window && window.screen;
-        let { width, height } = screen;
+        let { width, height } = getResolution();
         this.w = width;
         this.h = height;
         // 劫持请求错误
@@ -39,7 +38,7 @@ export default class Errors {
                 msg: event.message,
                 w: this.w,
                 h: this.h,
-                type: 'exception'
+                type: 1
             });
         }
     }
@@ -80,7 +79,7 @@ export default class Errors {
         if (err) {
             let reason = err.reason;
             report({
-                type: 4,
+                type: 3,
                 msg: reason
             });
         }
@@ -100,7 +99,7 @@ export default class Errors {
                             res: JSON.stringify(res.body),
                             code: res.status,
                             statusText: res.statusText,
-                            type: 3
+                            type: 2
                         });
                     }
                     return res;

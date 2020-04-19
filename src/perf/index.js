@@ -96,7 +96,9 @@ export default class Perf {
         metrics.domTime = domContentLoadedEventEnd - domLoading; // dom耗时
         metrics.srcTime = domComplete - domInteractive; // 资源耗时
         // metrics.ren = loadEventEnd - responseEnd;
-        getResolution(metrics);
+        let {width, height} = getResolution();
+        metrics.resolutionWidth = width;
+        metrics.resolutionHeight = height;
         this.formatMetrics(metrics);
         this.done = true;
     }

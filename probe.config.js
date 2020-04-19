@@ -2,11 +2,13 @@ export default {
     // 上报地址
     // url: 'https://gsp0.baidu.com/5aAHeD3nKhI2p27j8IqW0jdnxx1xbK/tb/img/track.gif',
     url: '',
+    perf: true, // 上报perf
+    err: true, // 上报error
     // 其他参数
     common: {
         // 非必须自定义参数
-        task: 'tieba_dp',
-        app: 'tieba',
+        task: 'taskname',
+        app: 'appname',
         t: new Date().getTime() // 上报时间戳
     },
     // 上报指标字段名映射
