@@ -1,5 +1,5 @@
 {
-  "name": "probe",
+  "name": "fe-probe",
   "version": "0.0.1",
   "description": "frontend performance and exceptions probe",
   "main": "probe.js",
