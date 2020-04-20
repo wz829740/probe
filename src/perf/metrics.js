@@ -1,7 +1,7 @@
 export default {
     // rafFp: 0, // raf算白屏
     firstPaint: 0, // performance算白屏*
-    firstScreen: 0, // performance算首屏*
+    firstMeaningfulPaint: 0, // performance算首屏*
     tcp: 0,
     dns: 0,
     timeToFirstRequest: 0, // 网络请求时间

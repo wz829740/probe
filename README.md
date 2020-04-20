@@ -1,7 +1,17 @@
 # probe（前端性能和异常探针sdk）
 
-## 用法
-### 配置probe.config.js
+## Installation
+```
+npm install --save-dev probe
+```
+
+## Usage
+### 1.会在你的项目根目录下生成配置探针指标配置文件，编辑修改各项参数
+```
+probe config
+```
+- 配置文件说明
+
 ``` // options说明
     url: '', // 上报地址
     // 其他参数
@@ -30,14 +40,13 @@
     }
 ```
 
-### probe.config.js配置文件合法性校验
-- npm run check
-
-### 运行
-- npm run build
-- 将dist目录下生成的probe.js引入到项目html的script标签最顶部
+### 2.会在你项目的根目录下生成探针sdk
 ```
-<script src="probe.js"></script>
+probe build
+```
+- 将生成的probe.min.js引入到项目html的script标签最顶部
+```
+<script src="probe.min.js"></script>
 <!-- 启动探测 -->
 <script>
     <!-- params: sample、your page name -->
@@ -45,8 +54,12 @@
 </script>
 ```
 
-### 测试开发
-- npm run test
+### 更多
+-  ```probe check // 可以对probe.config.js做合法校验```
+-  ```probe test // 测试开发探针数据指标```
+
+
+### Browser Support
 
 
 

@@ -6,19 +6,19 @@ import config from '../probe.config';
 export function report(data) {
     let { url, alias, common } = config;
     if (!url) {
-        console.log(data)
+        console.log(data);
         return;
     }
+    let result = {};
     for (let key in alias) {
         if (data[key]) {
-            data[alias[key]] = data[key];
-            delete data[key];
+            result[alias[key]] = data[key];
         }
     }
-    if (data) {
-        data = Object.assign(data, common);
+    if (result) {
+        result = Object.assign(result, common);
     }
-    reportByImg(url, data);
+    reportByImg(url, result);
 }
 // img标签上报
 function reportByImg(url, data) {

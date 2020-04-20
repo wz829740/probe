@@ -27,7 +27,7 @@ export default class Perf {
                         metrics.firstPaint = startTime;
                     }
                     if (item.name === 'first-contentful-paint') {
-                        metrics.firstScreen = startTime;
+                        metrics.firstMeaningfulPaing = startTime;
                     }
                     if (entryType === 'navigation') {
                         !this.done && this.getResult();
@@ -47,8 +47,8 @@ export default class Perf {
             let rss = performance.getEntriesByType('resource');
             let rects = getVisibleRects();
             rss.forEach(({ initiatorType, responseEnd, name }) => {
-                if (rects.includes(name) && responseEnd > metrics.firstScreen) {
-                    metrics.firstScreen = responseEnd;
+                if (rects.includes(name) && responseEnd > metrics.firstMeaningfulPaint) {
+                    metrics.firstMeaningfulPaint = responseEnd;
                 }
             });
         } catch (e) {
@@ -130,9 +130,9 @@ export default class Perf {
             // 比如页面无内容时，始终拿不到fp
             metrics.firstPaint = performance.timing.domLoading - performance.timing.navigationStart;
         }
-        if (metrics.firstScreen <= metrics.firstPaint) {
+        if (metrics.firstMeaningfulPaint <= metrics.firstPaint) {
             // 首屏白屏时间差不多
-            metrics.firstScreen = metrics.firstPaint;
+            metrics.firstMeaningfulPaint = metrics.firstPaint;
         }
         for (let item in metrics) {
             if (item === 'page') {

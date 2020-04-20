@@ -7,7 +7,7 @@ import serve from 'rollup-plugin-serve'
 export default {
     input: 'src/index.js',
     output: {
-        file: 'dist/probe.js',
+        file: 'probe.js',
         format: 'iife',
         name: 'probe'
     },
