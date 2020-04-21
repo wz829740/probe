@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 
 const commander = require('commander');
-const packageJson = require('../package.json');
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
 const {exec} = require('child_process');
 const program = new commander.Command();
 const rollup = require('rollup');
+const rum = require('./rum');
 
 const probeConfig = 'probe.config.js';
 const probeMin = 'probe.min.js';
-const probeJs = 'probe.js';
 
 program.command('config').action(() => {
     console.log('init a probe config...');
@@ -51,7 +50,7 @@ async function getConfig() {
     return configObj;
 }
 
-function reflect(cmd) {
+function reflect() {
     let targetDir = path.resolve(__dirname, '..');
     let reflect = path.join(targetDir, probeConfig);
     let custom = path.join(process.cwd(), probeConfig);
@@ -60,14 +59,8 @@ function reflect(cmd) {
         fs.copyFileSync(custom, reflect);
     }
     let res = {targetDir};
-    if (cmd === 'test') {
-        res.input = path.join(targetDir, probeJs);
-        res.output = path.join(process.cwd(), probeJs);
-        return res;
-    }
     res.input = path.join(targetDir, probeMin);
     res.output = path.join(process.cwd(), probeMin);
-    console.log(res)
     return res;
 }
 
@@ -81,7 +74,7 @@ function buildCommand() {
     const buildCmd = new commander.Command('build');
     buildCmd.action(async () => {
         await validConfig();
-        const {input, output, targetDir} = reflect('build');
+        const {input, output, targetDir} = reflect();
         exec('npm run build', {cwd: targetDir}, () => {
             if (input !== output) {
                 fs.copyFileSync(input, output);
@@ -92,25 +85,15 @@ function buildCommand() {
     return buildCmd;
 }
 
-function testCommand() {
-    const testCmd = new commander.Command('test');
-    testCmd.action(() => {
-        console.log('build probe.js...');
-        console.log(chalk.green('Open http://localhost:10001 and check the metrics in console!'));
-        const {input, output, targetDir} = reflect('test');
-        exec('npm run test', {cwd: targetDir}, () => {
-            if (input !== output) {
-                fs.copyFileSync(input, output);
-            }
-            console.log(chalk.green('build successfully!'));
-        });
-    });
-    return testCmd;
+function rumCommand() {
+    const rumCmd = new commander.Command('rum');
+    rumCmd.action(rum);
+    return rumCmd;
 }
 
 program.addCommand(checkCommand());
 program.addCommand(buildCommand());
-program.addCommand(testCommand());
+program.addCommand(rumCommand());
 
 program.parse(process.argv);
 

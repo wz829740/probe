@@ -25,5 +25,13 @@ export default {
         frontEndTime: 'fe', // 前端耗时
         resolutionWidth: 'w', // 分辨率
         resolutionHeight: 'h'
+    },
+    // 开发环境配置，默认为false
+    isDev: true,
+    dev: {
+        device: 'S2D0219129002696',
+        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        pkg: 'com.baidu.searchbox',
+        page: 'http://wz.aa.com/test/index.html'
     }
 };

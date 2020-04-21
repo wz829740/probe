@@ -13,7 +13,7 @@ export default {
     // 上报指标字段名映射
     alias: {
         tcp: 'tcp', // tcp耗时
-        dns: 'xxx', // dns耗时
+        dns: 'xx', // dns耗时
         timeToFirstRequest: 'net', // network ready 开始发送请求
         timeToFirstByte: 'rd', // ttfb
         firstPaint: 'ht', // 白屏
@@ -22,8 +22,17 @@ export default {
         domTime: 'dom', // dom加载时间
         srcTime: 'src', // 资源加载时间
         complete: 'dt', // 完全加载时间
-        frontEndTime: 'fe', // 前端耗时
+        frontEndTime: 'x', // 前端耗时
         resolutionWidth: 'w', // 分辨率
         resolutionHeight: 'h'
+    },
+    // 开发环境配置，默认为false
+    isDev: true,
+    // rum配置
+    dev: {
+        device: 'S2D0219129002696',
+        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        pkg: 'com.baidu.searchbox',
+        page: 'http://wz.aa.com/test/index.html'
     }
 };

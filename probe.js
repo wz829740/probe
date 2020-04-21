@@ -20,7 +20,7 @@ var probe = (function () {
       alias: {
         tcp: 'tcp',
         // tcp耗时
-        dns: 'xxx',
+        dns: 'xx',
         // dns耗时
         timeToFirstRequest: 'net',
         // network ready 开始发送请求
@@ -38,11 +38,20 @@ var probe = (function () {
         // 资源加载时间
         complete: 'dt',
         // 完全加载时间
-        frontEndTime: 'fe',
+        frontEndTime: 'x',
         // 前端耗时
         resolutionWidth: 'w',
         // 分辨率
         resolutionHeight: 'h'
+      },
+      // 开发环境配置，默认为false
+      isDev: true,
+      // rum配置
+      dev: {
+        device: 'S2D0219129002696',
+        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        pkg: 'com.baidu.searchbox',
+        page: 'http://wz.aa.com/test/index.html'
       }
     };
 
@@ -105,20 +114,30 @@ var probe = (function () {
      * 上报函数
      */
     function report(data) {
-      var alias = config.alias;
+      var url = config.url,
+          common = config.common,
+          dev = config.dev;
       var result = {};
 
-      for (var key in alias) {
-        if (data[key]) {
-          result[alias[key]] = data[key];
-        }
+      {
+        result = Object.assign(data, common, dev);
+        url = 'http://localhost:10002';
       }
 
-      {
-        console.log(result);
-        return;
-      }
+      console.log(result);
+      reportByImg(url, result);
     } // img标签上报
+
+    function reportByImg(url, data) {
+      var img = new Image();
+      var params = [];
+
+      for (var key in data) {
+        params.push("".concat(key, "=").concat(encodeURIComponent(data[key])));
+      }
+
+      img.src = "".concat(url, "?").concat(params.join('&'));
+    } // xhr上报
 
     /**
      * 判断dom元素是否在可视区内

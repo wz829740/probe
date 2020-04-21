@@ -4,22 +4,23 @@
 import config from '../probe.config.js';
 
 export function report(data) {
-    let { url, alias, common } = config;
+    let { url, alias, common, isDev, dev } = config;
     let result = {};
-    for (let key in alias) {
-        if (data[key]) {
-            result[alias[key]] = data[key];
+    if (isDev) {
+        result = Object.assign(data, common, dev);
+        url = 'http://localhost:10002';
+    } else {
+        for (let key in alias) {
+            if (data[key]) {
+                result[alias[key]] = data[key];
+            }
         }
-    }
-    if (!url) {
-        console.log(result);
-        return;
-    }
-    if (result) {
         result = Object.assign(result, common);
     }
+    console.log(result);
     reportByImg(url, result);
 }
+
 // img标签上报
 function reportByImg(url, data) {
     let img = new Image;
