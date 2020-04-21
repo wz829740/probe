@@ -1,19 +1,19 @@
 /**
  * 上报函数
  */
-import config from '../probe.config';
+import config from '../probe.config.js';
 
 export function report(data) {
     let { url, alias, common } = config;
-    if (!url) {
-        console.log(data);
-        return;
-    }
     let result = {};
     for (let key in alias) {
         if (data[key]) {
             result[alias[key]] = data[key];
         }
+    }
+    if (!url) {
+        console.log(result);
+        return;
     }
     if (result) {
         result = Object.assign(result, common);

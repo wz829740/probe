@@ -1,4 +1,4 @@
-import config from '../probe.config';
+import config from '../probe.config.js';
 import Errors from './errors';
 import Perf from './perf';
 

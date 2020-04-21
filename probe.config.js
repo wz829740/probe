@@ -13,7 +13,7 @@ export default {
     // 上报指标字段名映射
     alias: {
         tcp: 'tcp', // tcp耗时
-        dns: 'dns', // dns耗时
+        dns: 'xxx', // dns耗时
         timeToFirstRequest: 'net', // network ready 开始发送请求
         timeToFirstByte: 'rd', // ttfb
         firstPaint: 'ht', // 白屏

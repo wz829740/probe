@@ -1,7 +1,7 @@
 var probe = (function () {
     'use strict';
 
-    ({
+    var config = {
       // 上报地址
       url: '',
       perf: true,
@@ -20,7 +20,7 @@ var probe = (function () {
       alias: {
         tcp: 'tcp',
         // tcp耗时
-        dns: 'dns',
+        dns: 'xxx',
         // dns耗时
         timeToFirstRequest: 'net',
         // network ready 开始发送请求
@@ -44,7 +44,7 @@ var probe = (function () {
         // 分辨率
         resolutionHeight: 'h'
       }
-    });
+    };
 
     function _classCallCheck(instance, Constructor) {
       if (!(instance instanceof Constructor)) {
@@ -105,9 +105,17 @@ var probe = (function () {
      * 上报函数
      */
     function report(data) {
+      var alias = config.alias;
+      var result = {};
+
+      for (var key in alias) {
+        if (data[key]) {
+          result[alias[key]] = data[key];
+        }
+      }
 
       {
-        console.log(data);
+        console.log(result);
         return;
       }
     } // img标签上报
@@ -585,6 +593,10 @@ var probe = (function () {
         }
 
         var isPhone = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
+        var clientType = isPhone ? 'mobile' : 'web';
+        config.common.page = page;
+        config.common.clientType = clientType;
+        config.sample = sample;
         var errors = new Errors();
         var perf = new Perf(); // perf.clientType = clientType;
 
