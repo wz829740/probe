@@ -2,7 +2,7 @@
 
 ## Installation
 ```
-npm install --save-dev probe
+npm install --save-dev fe-probe
 ```
 
 ## Usage
