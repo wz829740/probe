@@ -14,6 +14,7 @@ export default {
         config.sample = sample;
         let errors = new Errors();
         let perf = new Perf();
+        perf.clientType = clientType;
         if (config.perf) {
             perf.perfMonitor();
             window.addEventListener('load', perf.afterOnLoad.bind(perf));

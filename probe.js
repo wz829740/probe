@@ -20,7 +20,7 @@ var probe = (function () {
       alias: {
         tcp: 'tcp',
         // tcp耗时
-        dns: 'xx',
+        dns: 'dns',
         // dns耗时
         timeToFirstRequest: 'net',
         // network ready 开始发送请求
@@ -38,24 +38,14 @@ var probe = (function () {
         // 资源加载时间
         loadEventEnd: 'dt',
         // 完全加载时间
-        frontEndTime: 'x',
+        frontEndTime: 'fe',
         // 前端耗时
         resolutionWidth: 'w',
         // 分辨率
         resolutionHeight: 'h'
       },
       // 开发环境配置，默认为false
-      isDev: true,
-      // rum配置
-      dev: {
-        device: 'S2D0219129002696',
-        // 测试设备手机
-        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
-        // 要打开的浏览器
-        pkg: 'com.baidu.searchbox',
-        page: 'test/index.html' // 接入探针测试的页面
-
-      }
+      isDev: true
     };
 
     function _classCallCheck(instance, Constructor) {
@@ -116,16 +106,27 @@ var probe = (function () {
     /**
      * 上报函数
      */
-    function report(data) {
-      var common = config.common;
+    function report(data, clientType) {
+      var url = config.url,
+          alias = config.alias,
+          common = config.common;
       var result = {};
 
-      {
+      if ( clientType === 'isPhone') {
         result = Object.assign(data, common);
-        console.log(result);
         setTimeout(function () {
           showRenderData(result);
         }, 500);
+      } else {
+        for (var key in alias) {
+          if (data[key]) {
+            result[alias[key]] = data[key];
+          }
+        }
+
+        result = Object.assign(result, common);
+        console.log(result);
+        reportByImg(url, result);
       }
     }
 
@@ -140,6 +141,18 @@ var probe = (function () {
       wrap.innerHTML = content;
       document.body.appendChild(wrap);
     } // img标签上报
+
+
+    function reportByImg(url, data) {
+      var img = new Image();
+      var params = [];
+
+      for (var key in data) {
+        params.push("".concat(key, "=").concat(encodeURIComponent(data[key])));
+      }
+
+      img.src = "".concat(url, "?").concat(params.join('&'));
+    } // xhr上报
 
     /**
      * 判断dom元素是否在可视区内
@@ -611,7 +624,7 @@ var probe = (function () {
           }
 
           metrics.type = 'perf';
-          report(metrics);
+          report(metrics, this.clientType);
         }
       }]);
 
@@ -631,6 +644,7 @@ var probe = (function () {
         config.sample = sample;
         var errors = new Errors();
         var perf = new Perf();
+        perf.clientType = clientType;
 
         {
           perf.perfMonitor();

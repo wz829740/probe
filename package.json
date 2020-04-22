@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup --config rollup.config.dev.js -w",
-    "rum": "node bin/rum.js"
+    "auto": "node bin/auto.js"
   },
   "bin": {
     "probe": "./bin/index.js"

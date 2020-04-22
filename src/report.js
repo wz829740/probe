@@ -3,12 +3,11 @@
  */
 import config from '../probe.config.js';
 
-export function report(data) {
+export function report(data, clientType) {
     let { url, alias, common, isDev } = config;
     let result = {};
-    if (isDev) {
+    if (isDev && clientType === 'isPhone') {
         result = Object.assign(data, common);
-        console.log(result)
         setTimeout(() => {
             showRenderData(result);
         }, 500);

@@ -157,6 +157,6 @@ export default class Perf {
             metrics.isFinish = 0;
         }
         metrics.type = 'perf';
-        report(metrics);
+        report(metrics, this.clientType);
     }
 }

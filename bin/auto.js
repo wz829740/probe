@@ -2,16 +2,13 @@ const process = require('child_process');
 const url  = require('url');
 const http = require('http');
 const fs = require('fs-extra');
-const path = require('path');
-const rollup = require('rollup');
 const getLocalIp = require('../src/util/getIp');
 
-let device;
-let browser;
-let pkg;
-let page;
-
 const port = '10001';
+const device = 'S2D0219129002696';
+const browser = 'com.baidu.searchbox/com.baidu.searchbox.MainActivity';
+const pkg = 'com.baidu.searchbox';
+const page = getLocalIp() + `:${port}/test/index.html`;
 
 function startServer(){
     const server = new http.Server();
@@ -23,21 +20,6 @@ function startServer(){
         fs.appendFileSync('data.json', JSON.stringify(query, null, '\t'));
     });
     server.listen('10002');
-}
-
-async function getConfig() {
-    let custom = path.join(__dirname, '../probe.config.js');
-    const bundle = await rollup.rollup({
-        input: custom
-    });
-    const res = await bundle.generate({
-        format: 'cjs'
-    });
-    const configObj = eval(res.output[0].code).dev;
-    device = configObj.device;
-    browser = configObj.browser;
-    pkg = configObj.pkg;
-    page = getLocalIp()+`:${port}/` + configObj.page;
 }
 
 async function sleep(time) {
@@ -61,7 +43,6 @@ function forceStopBrowser() {
 }
 
 async function run() {
-    await getConfig();
     // startServer();
     forceStopBrowser();
     await sleep(100);

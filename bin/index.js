@@ -7,7 +7,6 @@ const chalk = require('chalk');
 const {exec} = require('child_process');
 const program = new commander.Command();
 const rollup = require('rollup');
-const rum = require('./rum');
 
 const probeConfig = 'probe.config.js';
 const probeMin = 'probe.min.js';
