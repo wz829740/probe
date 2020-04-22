@@ -29,7 +29,7 @@ probe config
         timeToFirstRequest: 'net', // network ready 开始发送请求
         timeToFirstByte: 'rd', // ttfb
         firstPaint: 'ht', // 白屏
-        firstScreen: 'fs', // 首屏
+        firstMeaningfulPaint: 'fs', // 首屏
         domInteractive: 'drt', // dom可交互
         domTime: 'dom', // dom加载时间
         srcTime: 'src', // 资源加载时间
