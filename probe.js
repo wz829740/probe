@@ -49,9 +49,12 @@ var probe = (function () {
       // rum配置
       dev: {
         device: 'S2D0219129002696',
+        // 测试设备手机
         browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html'
+        page: 'http://wz.aa.com/test/index.html' // 接入探针测试的页面
+
       }
     };
 
@@ -114,30 +117,28 @@ var probe = (function () {
      * 上报函数
      */
     function report(data) {
-      var url = config.url,
-          common = config.common,
-          dev = config.dev;
+      var common = config.common;
       var result = {};
 
       {
-        result = Object.assign(data, common, dev);
-        url = 'http://localhost:10002';
+        result = Object.assign(data, common);
+        setTimeout(function () {
+          showRenderData(result);
+        }, 500);
       }
+    }
 
-      console.log(result);
-      reportByImg(url, result);
+    function showRenderData(result) {
+      var wrap = document.createElement('div');
+      var content = '<div style="position: fixed; width: 100vw; height: 300px; bottom: 0; overflow: scroll; color: white; background: #333; padding: 20px">';
+
+      for (var key in result) {
+        content += "<div>".concat(key, ":").concat(result[key], "</div>");
+      }
+      content += '</div>';
+      wrap.innerHTML = content;
+      document.body.appendChild(wrap);
     } // img标签上报
-
-    function reportByImg(url, data) {
-      var img = new Image();
-      var params = [];
-
-      for (var key in data) {
-        params.push("".concat(key, "=").concat(encodeURIComponent(data[key])));
-      }
-
-      img.src = "".concat(url, "?").concat(params.join('&'));
-    } // xhr上报
 
     /**
      * 判断dom元素是否在可视区内

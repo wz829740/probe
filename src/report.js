@@ -4,11 +4,13 @@
 import config from '../probe.config.js';
 
 export function report(data) {
-    let { url, alias, common, isDev, dev } = config;
+    let { url, alias, common, isDev } = config;
     let result = {};
     if (isDev) {
-        result = Object.assign(data, common, dev);
-        url = 'http://localhost:10002';
+        result = Object.assign(data, common);
+        setTimeout(() => {
+            showRenderData(result);
+        }, 500);
     } else {
         for (let key in alias) {
             if (data[key]) {
@@ -16,9 +18,21 @@ export function report(data) {
             }
         }
         result = Object.assign(result, common);
+        console.log(result);
+        reportByImg(url, result);
     }
-    console.log(result);
-    reportByImg(url, result);
+}
+
+
+function showRenderData(result){
+    let wrap = document.createElement('div');
+    let content = '<div style="position: fixed; width: 100vw; height: 300px; bottom: 0; overflow: scroll; color: white; background: #333; padding: 20px">';
+    for (let key in result) {
+        content += `<div>${key}:${result[key]}</div>`;
+    };
+    content += '</div>';
+    wrap.innerHTML = content;
+    document.body.appendChild(wrap);
 }
 
 // img标签上报

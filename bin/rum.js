@@ -59,8 +59,7 @@ function forceStopBrowser() {
 
 module.exports = async function run(){
     await getConfig();
-    startServer();
-    await sleep(100);
+    // startServer();
     forceStopBrowser();
     await sleep(100);
     openPage();

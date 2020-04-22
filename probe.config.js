@@ -30,9 +30,9 @@ export default {
     isDev: true,
     // rum配置
     dev: {
-        device: 'S2D0219129002696',
-        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        device: 'S2D0219129002696', // 测试设备手机
+        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity', // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html'
+        page: 'http://wz.aa.com/test/index.html' // 接入探针测试的页面
     }
 };

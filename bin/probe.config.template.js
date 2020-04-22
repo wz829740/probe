@@ -29,9 +29,9 @@ export default {
     // 开发环境配置，默认为false
     isDev: true,
     dev: {
-        device: 'S2D0219129002696',
-        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
+        device: 'S2D0219129002696', // 测试的手机设备
+        browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity', // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html'
+        page: 'http://wz.aa.com/test/index.html' // 接入探针的测试页面
     }
 };
