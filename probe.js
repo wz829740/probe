@@ -162,7 +162,6 @@ var probe = (function () {
       return intersect;
     } // 获取首屏元素
 
-
     function getVisibleRects() {
       var elements = document.getElementsByTagName('*'); // 避免递归
 
@@ -179,6 +178,11 @@ var probe = (function () {
 
         if (area) {
           var style = window.getComputedStyle(el);
+          var isHide = style.display === 'none'; // 元素不可见
+
+          if (isHide) {
+            return;
+          }
 
           if (el.tagName === 'IMG') {
             visibleRects.push(el.src);
@@ -625,7 +629,7 @@ var probe = (function () {
         config.common.clientType = clientType;
         config.sample = sample;
         var errors = new Errors();
-        var perf = new Perf(); // perf.clientType = clientType;
+        var perf = new Perf();
 
         {
           perf.perfMonitor();

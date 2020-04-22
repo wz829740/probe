@@ -2,7 +2,7 @@
  * 判断dom元素是否在可视区内
  */
 
-function isEleVisible(element) {
+export function isEleVisible(element) {
     let elRect = element.getBoundingClientRect();
     let intersect = false;
     intersect = {
@@ -31,6 +31,10 @@ export function getVisibleRects() {
         // 在可视区域内
         if (area) {
             let style = window.getComputedStyle(el);
+            let isHide = style.display === 'none'; // 元素不可见
+            if (isHide) {
+                return;
+            }
             if (el.tagName === 'IMG') {
                 visibleRects.push(el.src);
             }
