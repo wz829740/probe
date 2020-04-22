@@ -32,6 +32,6 @@ export default {
         device: 'S2D0219129002696', // 测试的手机设备
         browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity', // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html' // 接入探针的测试页面
+        page: 'test/index.html' // 接入探针的测试页面
     }
 };
