@@ -58,7 +58,7 @@ probe build
 
 -  ```probe check // 可以对probe.config.js做合法校验```
 
-## 开发
+## 测试开发
 ```
 git clone https://github.com/janewuwz/probe
 npm i
@@ -66,7 +66,7 @@ npm run dev // 开发pc
 npm run rum // 开发移动端
 ```
 
-### 移动端开发
+### 移动端测试开发
 - 首先要安装adb工具，以mac为例：```brew install adb```
 - 连接测试手机，并通过```adb services```拿到手机设备型号
 - 在probe.config.js中开启dev，并设置测试手机设备和浏览器等
