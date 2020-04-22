@@ -8,6 +8,7 @@ export function report(data) {
     let result = {};
     if (isDev) {
         result = Object.assign(data, common);
+        console.log(result)
         setTimeout(() => {
             showRenderData(result);
         }, 500);

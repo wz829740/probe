@@ -4,11 +4,14 @@ const http = require('http');
 const fs = require('fs-extra');
 const path = require('path');
 const rollup = require('rollup');
+const getLocalIp = require('../src/util/getIp');
 
 let device;
 let browser;
 let pkg;
 let page;
+
+const port = '10001';
 
 function startServer(){
     const server = new http.Server();
@@ -34,7 +37,7 @@ async function getConfig() {
     device = configObj.device;
     browser = configObj.browser;
     pkg = configObj.pkg;
-    page = configObj.page;
+    page = getLocalIp()+`:${port}/` + configObj.page;
 }
 
 async function sleep(time) {

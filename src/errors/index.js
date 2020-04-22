@@ -5,7 +5,7 @@
  */
 
 import { report } from '../report';
-import { getResolution } from '../utils';
+import { getResolution } from '../util/utils';
 export default class Errors {
     constructor() {
         let { width, height } = getResolution();

@@ -26,7 +26,7 @@ async function validConfig() {
         console.log(chalk.red('no alias been set'));
         return;
     }
-    let validPerfs = ['tcp', 'dns', 'timeToFirstRequest', 'timeToFirstByte', 'firstPaint', 'firstMeaningfulPaint', 'domInteractive', 'domTime', 'srcTime', 'complete', 'frontEndTime', 'resolutionWidth', 'resolutionHeight'];
+    let validPerfs = ['tcp', 'dns', 'timeToFirstRequest', 'timeToFirstByte', 'firstPaint', 'firstMeaningfulPaint', 'domInteractive', 'domTime', 'srcTime', 'loadEventEnd', 'frontEndTime', 'resolutionWidth', 'resolutionHeight'];
     let validAlias = Object.keys(config.alias).every(k => {
         return validPerfs.includes(k);
     });

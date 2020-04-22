@@ -21,7 +21,7 @@ export default {
         domInteractive: 'drt', // dom可交互
         domTime: 'dom', // dom加载时间
         srcTime: 'src', // 资源加载时间
-        complete: 'dt', // 完全加载时间
+        loadEventEnd: 'dt', // 完全加载时间
         frontEndTime: 'x', // 前端耗时
         resolutionWidth: 'w', // 分辨率
         resolutionHeight: 'h'
@@ -33,6 +33,6 @@ export default {
         device: 'S2D0219129002696', // 测试设备手机
         browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity', // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html' // 接入探针测试的页面
+        page: 'test/index.html' // 接入探针测试的页面
     }
 };

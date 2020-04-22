@@ -9,7 +9,7 @@ export default {
     // fcp: 0, // 首次内容绘制
     timeToFirstByte: 0, // 后端耗时
     frontEndTime: 0, // 前端耗时
-    complete: 0, // 完全加载时间*
+    loadEventEnd: 0, // 完全加载时间*
     domTime: 0, // DOM解析
     srcTime: 0 // 资源加载
         // ren: 0 // 页面渲染

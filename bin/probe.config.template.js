@@ -21,7 +21,7 @@ export default {
         domInteractive: 'drt', // dom可交互
         domTime: 'dom', // dom加载时间
         srcTime: 'src', // 资源加载时间
-        complete: 'dt', // 完全加载时间
+        loadEventEnd: 'dt', // 完全加载时间
         frontEndTime: 'fe', // 前端耗时
         resolutionWidth: 'w', // 分辨率
         resolutionHeight: 'h'

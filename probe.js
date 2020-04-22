@@ -36,7 +36,7 @@ var probe = (function () {
         // dom加载时间
         srcTime: 'src',
         // 资源加载时间
-        complete: 'dt',
+        loadEventEnd: 'dt',
         // 完全加载时间
         frontEndTime: 'x',
         // 前端耗时
@@ -53,7 +53,7 @@ var probe = (function () {
         browser: 'com.baidu.searchbox/com.baidu.searchbox.MainActivity',
         // 要打开的浏览器
         pkg: 'com.baidu.searchbox',
-        page: 'http://wz.aa.com/test/index.html' // 接入探针测试的页面
+        page: 'test/index.html' // 接入探针测试的页面
 
       }
     };
@@ -122,6 +122,7 @@ var probe = (function () {
 
       {
         result = Object.assign(data, common);
+        console.log(result);
         setTimeout(function () {
           showRenderData(result);
         }, 500);
@@ -393,7 +394,7 @@ var probe = (function () {
       // 后端耗时
       frontEndTime: 0,
       // 前端耗时
-      complete: 0,
+      loadEventEnd: 0,
       // 完全加载时间*
       domTime: 0,
       // DOM解析
@@ -440,7 +441,7 @@ var probe = (function () {
                 }
 
                 if (item.name === 'first-contentful-paint') {
-                  metrics.firstMeaningfulPaing = startTime;
+                  metrics.firstMeaningfulPaint = startTime;
                 }
 
                 if (entryType === 'navigation') {
@@ -533,7 +534,7 @@ var probe = (function () {
           metrics.tcp = connectStart - navigationStart;
           metrics.dns = domainLookupStart - navigationStart;
           metrics.timeToFirstRequest = requestStart - navigationStart;
-          metrics.complete = loadEventEnd - navigationStart;
+          metrics.loadEventEnd = loadEventEnd - navigationStart;
           metrics.domInteractive = domInteractive - navigationStart;
           metrics.timeToFirstByte = responseStart - requestStart; // TTFB 后端耗时
 

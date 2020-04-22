@@ -4,7 +4,7 @@
  */
 import metrics from './metrics';
 import { report } from '../report';
-import { getVisibleRects, getResolution } from '../utils';
+import { getVisibleRects, getResolution } from '../util/utils';
 
 export default class Perf {
     constructor() {
@@ -27,7 +27,7 @@ export default class Perf {
                         metrics.firstPaint = startTime;
                     }
                     if (item.name === 'first-contentful-paint') {
-                        metrics.firstMeaningfulPaing = startTime;
+                        metrics.firstMeaningfulPaint = startTime;
                     }
                     if (entryType === 'navigation') {
                         !this.done && this.getResult();
@@ -94,7 +94,7 @@ export default class Perf {
         metrics.tcp = connectStart - navigationStart;
         metrics.dns = domainLookupStart - navigationStart;
         metrics.timeToFirstRequest = requestStart - navigationStart;
-        metrics.complete = loadEventEnd - navigationStart;
+        metrics.loadEventEnd = loadEventEnd - navigationStart;
         metrics.domInteractive = domInteractive - navigationStart;
         metrics.timeToFirstByte = responseStart - requestStart; // TTFB 后端耗时
         metrics.frontEndTime = loadEventEnd - responseEnd; // 前端总共耗时

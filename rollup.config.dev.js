@@ -4,6 +4,8 @@ import { eslint } from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
 import serve from 'rollup-plugin-serve';
 
+const getLocalIp = require('./src/util/getIp');
+
 export default {
     input: 'src/index.js',
     output: {
@@ -15,7 +17,8 @@ export default {
         serve({
             open: true,
             openPage: '/test/index.html',
-            contentBase: ['.', 'test']
+            contentBase: ['.', 'test'],
+            host: getLocalIp()
         }),
         resolve(),
         commonjs(),
