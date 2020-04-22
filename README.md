@@ -63,6 +63,7 @@ probe build
 git clone https://github.com/janewuwz/probe
 npm i
 npm run dev // 开发pc
+npm run rum // 开发移动端
 ```
 
 ### 移动端开发
