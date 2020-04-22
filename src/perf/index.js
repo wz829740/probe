@@ -16,13 +16,13 @@ export default class Perf {
     }
 
     perfMonitor() {
-        let types = ['paint', 'navigation'];
+        let types = ['paint', 'navigation', 'first-input'];
         this.deadline = performance.timing.navigationStart + 60000; // 最长等待1min
         try {
             this.perfObserver = new PerformanceObserver(list => {
                 let entries = list.getEntries();
                 entries.forEach(item => {
-                    const { startTime, duration, entryType } = item;
+                    const {startTime, name, entryType, processingStart} = item;
                     if (item.name === 'first-paint') {
                         metrics.firstPaint = startTime;
                     }
@@ -31,6 +31,11 @@ export default class Perf {
                     }
                     if (entryType === 'navigation') {
                         !this.done && this.getResult();
+                    }
+                    if (entryType === 'first-input') {
+                        // 首次输入延迟时间
+                        const fid = processingStart - startTime;
+                        console.log('FID:', name, fid);
                     }
                 });
             }).observe({
@@ -46,7 +51,7 @@ export default class Perf {
         try {
             let rss = performance.getEntriesByType('resource');
             let rects = getVisibleRects();
-            rss.forEach(({ initiatorType, responseEnd, name }) => {
+            rss.forEach(({initiatorType, responseEnd, name}) => {
                 if (rects.includes(name) && responseEnd > metrics.firstMeaningfulPaint) {
                     metrics.firstMeaningfulPaint = responseEnd;
                 }

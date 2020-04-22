@@ -419,7 +419,7 @@ var probe = (function () {
         value: function perfMonitor() {
           var _this = this;
 
-          var types = ['paint', 'navigation'];
+          var types = ['paint', 'navigation', 'first-input'];
           this.deadline = performance.timing.navigationStart + 60000; // 最长等待1min
 
           try {
@@ -427,8 +427,9 @@ var probe = (function () {
               var entries = list.getEntries();
               entries.forEach(function (item) {
                 var startTime = item.startTime,
-                    duration = item.duration,
-                    entryType = item.entryType;
+                    name = item.name,
+                    entryType = item.entryType,
+                    processingStart = item.processingStart;
 
                 if (item.name === 'first-paint') {
                   metrics.firstPaint = startTime;
@@ -440,6 +441,12 @@ var probe = (function () {
 
                 if (entryType === 'navigation') {
                   !_this.done && _this.getResult();
+                }
+
+                if (entryType === 'first-input') {
+                  // 首次输入延迟时间
+                  var fid = processingStart - startTime;
+                  console.log('FID:', name, fid);
                 }
               });
             }).observe({

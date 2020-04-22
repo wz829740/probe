@@ -54,10 +54,16 @@ probe build
 </script>
 ```
 
-### 更多
--  ```probe check // 可以对probe.config.js做合法校验```
--  ```probe test // 测试开发探针数据指标```
+### 其他
 
+-  ```probe check // 可以对probe.config.js做合法校验```
+
+## 开发
+```
+git clone https://github.com/janewuwz/probe
+npm i
+npm run dev
+```
 
 ### Browser Support
 
