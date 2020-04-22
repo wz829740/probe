@@ -60,7 +60,7 @@ function forceStopBrowser() {
     });
 }
 
-module.exports = async function run(){
+async function run() {
     await getConfig();
     // startServer();
     forceStopBrowser();
@@ -69,3 +69,5 @@ module.exports = async function run(){
     await sleep(500);
     console.log('done!');
 }
+
+run();

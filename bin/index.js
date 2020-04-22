@@ -85,15 +85,8 @@ function buildCommand() {
     return buildCmd;
 }
 
-function rumCommand() {
-    const rumCmd = new commander.Command('rum');
-    rumCmd.action(rum);
-    return rumCmd;
-}
-
 program.addCommand(checkCommand());
 program.addCommand(buildCommand());
-program.addCommand(rumCommand());
 
 program.parse(process.argv);
 

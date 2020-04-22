@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup --config rollup.config.dev.js -w"
+    "dev": "rollup --config rollup.config.dev.js -w",
+    "rum": "node bin/rum.js"
   },
   "bin": {
     "probe": "./bin/index.js"
