@@ -396,6 +396,7 @@ var probe = (function () {
       // performance算白屏*
       firstMeaningfulPaint: 0,
       // performance算首屏*
+      firstContentfulPaint: 0,
       tcp: 0,
       dns: 0,
       timeToFirstRequest: 0,
@@ -437,38 +438,36 @@ var probe = (function () {
         value: function perfMonitor() {
           var _this = this;
 
-          var types = ['paint', 'navigation', 'first-input'];
           this.deadline = performance.timing.navigationStart + 60000; // 最长等待1min
 
           try {
             this.perfObserver = new PerformanceObserver(function (list) {
               var entries = list.getEntries();
-              entries.forEach(function (item) {
-                var startTime = item.startTime,
-                    name = item.name,
-                    entryType = item.entryType,
-                    processingStart = item.processingStart;
+              entries.forEach(function () {
+                var performanceEntries = performance.getEntriesByType('paint');
+                performanceEntries.forEach(function (_ref) {
+                  var name = _ref.name,
+                      startTime = _ref.startTime;
 
-                if (item.name === 'first-paint') {
-                  metrics.firstPaint = startTime;
-                }
+                  if (name === 'first-paint') {
+                    metrics.firstPaint = startTime;
+                  }
 
-                if (item.name === 'first-contentful-paint') {
-                  metrics.firstMeaningfulPaint = startTime;
-                }
+                  if (name === 'first-contentful-paint') {
+                    metrics.firstContentfulPaint = startTime;
+                    metrics.firstMeaningfulPaint = startTime;
+                  }
+                });
 
-                if (entryType === 'navigation') {
-                  !_this.done && _this.getResult();
-                }
+                _this.getFirstScreenImg();
 
-                if (entryType === 'first-input') {
-                  // 首次输入延迟时间
-                  var fid = processingStart - startTime;
-                  console.log('FID:', name, fid);
-                }
+                _this.getResult();
               });
-            }).observe({
-              entryTypes: types
+
+              _this.perfObserver.disconnect();
+            });
+            this.perfObserver.observe({
+              entryTypes: ['navigation']
             });
           } catch (e) {
             this.isSupport = false;
@@ -482,10 +481,9 @@ var probe = (function () {
           try {
             var rss = performance.getEntriesByType('resource');
             var rects = getVisibleRects();
-            rss.forEach(function (_ref) {
-              var initiatorType = _ref.initiatorType,
-                  responseEnd = _ref.responseEnd,
-                  name = _ref.name;
+            rss.forEach(function (_ref2) {
+              var responseEnd = _ref2.responseEnd,
+                  name = _ref2.name;
 
               if (rects.includes(name) && responseEnd > metrics.firstMeaningfulPaint) {
                 metrics.firstMeaningfulPaint = responseEnd;
@@ -497,34 +495,8 @@ var probe = (function () {
           }
         }
       }, {
-        key: "afterOnLoad",
-        value: function afterOnLoad() {
-          // 可以计算首屏图片时间
-          this.getFirstScreenImg();
-        }
-      }, {
-        key: "clearListener",
-        value: function clearListener() {
-          window.removeEventListener('load', this.afterOnLoad);
-        }
-      }, {
-        key: "disconnect",
-        value: function disconnect(observer) {
-          // 页面卸载时执行
-          try {
-            observer && observer.disconnect();
-          } catch (error) {}
-        }
-      }, {
         key: "getResult",
         value: function getResult() {
-          this.getMetrics();
-          this.disconnect(this.perfObserver);
-          this.clearListener();
-        }
-      }, {
-        key: "getMetrics",
-        value: function getMetrics() {
           var _performance$timing = performance.timing,
               domComplete = _performance$timing.domComplete,
               connectStart = _performance$timing.connectStart,
@@ -566,15 +538,7 @@ var probe = (function () {
           metrics.resolutionHeight = height;
           this.formatMetrics(metrics);
           this.done = true;
-        } // beforeUnload() {
-        //     if (!this.done) {
-        //         // 未正常上报，1.秒关页面 2.等到一半放弃 上报可能不全的性能数据
-        //         if (+new Date() - performance.timing.navigationStart > 1000) {
-        //             this.getResult();
-        //         }
-        //     }
-        // }
-
+        }
       }, {
         key: "waitUntilEnd",
         value: function waitUntilEnd() {
@@ -648,7 +612,6 @@ var probe = (function () {
 
         {
           perf.perfMonitor();
-          window.addEventListener('load', perf.afterOnLoad.bind(perf));
         } // err
 
 

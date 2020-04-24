@@ -16,30 +16,28 @@ export default class Perf {
     }
 
     perfMonitor() {
-        let types = ['paint', 'navigation', 'first-input'];
         this.deadline = performance.timing.navigationStart + 60000; // 最长等待1min
         try {
             this.perfObserver = new PerformanceObserver(list => {
                 let entries = list.getEntries();
-                entries.forEach(item => {
-                    const {startTime, name, entryType, processingStart} = item;
-                    if (item.name === 'first-paint') {
-                        metrics.firstPaint = startTime;
-                    }
-                    if (item.name === 'first-contentful-paint') {
-                        metrics.firstMeaningfulPaint = startTime;
-                    }
-                    if (entryType === 'navigation') {
-                        !this.done && this.getResult();
-                    }
-                    if (entryType === 'first-input') {
-                        // 首次输入延迟时间
-                        const fid = processingStart - startTime;
-                        console.log('FID:', name, fid);
-                    }
+                entries.forEach(() => {
+                    let performanceEntries = performance.getEntriesByType('paint');
+                    performanceEntries.forEach(({name, startTime}) => {
+                        if (name === 'first-paint') {
+                            metrics.firstPaint = startTime;
+                        }
+                        if (name === 'first-contentful-paint') {
+                            metrics.firstContentfulPaint = startTime;
+                            metrics.firstMeaningfulPaint = startTime;
+                        }
+                    });
+                    this.getFirstScreenImg();
+                    this.getResult();
                 });
-            }).observe({
-                entryTypes: types
+                this.perfObserver.disconnect();
+            });
+            this.perfObserver.observe({
+                entryTypes: ['navigation']
             });
         } catch (e) {
             this.isSupport = false;
@@ -51,7 +49,7 @@ export default class Perf {
         try {
             let rss = performance.getEntriesByType('resource');
             let rects = getVisibleRects();
-            rss.forEach(({initiatorType, responseEnd, name}) => {
+            rss.forEach(({responseEnd, name}) => {
                 if (rects.includes(name) && responseEnd > metrics.firstMeaningfulPaint) {
                     metrics.firstMeaningfulPaint = responseEnd;
                 }
@@ -62,29 +60,7 @@ export default class Perf {
         }
     }
 
-    afterOnLoad() {
-        // 可以计算首屏图片时间
-        this.getFirstScreenImg();
-    }
-
-    clearListener() {
-        window.removeEventListener('load', this.afterOnLoad);
-    }
-
-    disconnect(observer) {
-        // 页面卸载时执行
-        try {
-            observer && observer.disconnect();
-        } catch (error) {}
-    }
-
     getResult() {
-        this.getMetrics();
-        this.disconnect(this.perfObserver);
-        this.clearListener();
-    }
-
-    getMetrics() {
         const { domComplete, connectStart, domLoading, domainLookupStart, responseEnd, requestStart, loadEventEnd, domInteractive, navigationStart, responseStart, domContentLoadedEventEnd } = performance.timing;
         if (loadEventEnd === 0 && +new Date() < this.deadline) {
             // safari等不支持观察navigation触发loadEventEnd，轮询，但最多等待1min
@@ -107,16 +83,6 @@ export default class Perf {
         this.formatMetrics(metrics);
         this.done = true;
     }
-
-
-    // beforeUnload() {
-    //     if (!this.done) {
-    //         // 未正常上报，1.秒关页面 2.等到一半放弃 上报可能不全的性能数据
-    //         if (+new Date() - performance.timing.navigationStart > 1000) {
-    //             this.getResult();
-    //         }
-    //     }
-    // }
 
     waitUntilEnd() {
         let waiting = +new Date() < this.deadline;

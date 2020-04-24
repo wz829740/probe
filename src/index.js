@@ -17,7 +17,6 @@ export default {
         perf.clientType = clientType;
         if (config.perf) {
             perf.perfMonitor();
-            window.addEventListener('load', perf.afterOnLoad.bind(perf));
         }
         // err
         if (config.err) {
