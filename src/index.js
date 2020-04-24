@@ -1,6 +1,7 @@
 import config from '../probe.config.js';
 import Errors from './errors';
 import Perf from './perf';
+import {report} from './report';
 
 export default {
     setConfig(sample, page) {
@@ -15,6 +16,7 @@ export default {
         let errors = new Errors();
         let perf = new Perf();
         perf.clientType = clientType;
+        // perf
         if (config.perf) {
             perf.perfMonitor();
         }
@@ -23,14 +25,16 @@ export default {
             window.addEventListener('error', err => errors.watchJsErr(err));
             window.addEventListener('unhandledrejection', err => errors.unhandledRej(err));
         }
-        /**
-         * 监听页面卸载
-         */
-        // window.addEventListener('beforeunload', perf.beforeUnload.bind(perf), true);
-
-        document.addEventListener('unload', event => {
-            window.removeEventListener('error');
-            // window.removeEventListener('unhandledrejection')
+        document.addEventListener('unload', () => {
+            window.removeEventListener('error', errors.watchJsErr);
+            window.removeEventListener('unhandledrejection', errors.unhandledRej);
+        });
+    },
+    mark(name) {
+        report({
+            name,
+            duration: +new Date() - performance.timing.navigationStart(),
+            type: 'mark'
         });
     }
-}
+};

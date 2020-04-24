@@ -608,7 +608,7 @@ var probe = (function () {
         config.sample = sample;
         var errors = new Errors();
         var perf = new Perf();
-        perf.clientType = clientType;
+        perf.clientType = clientType; // perf
 
         {
           perf.perfMonitor();
@@ -623,14 +623,17 @@ var probe = (function () {
             return errors.unhandledRej(err);
           });
         }
-        /**
-         * 监听页面卸载
-         */
-        // window.addEventListener('beforeunload', perf.beforeUnload.bind(perf), true);
 
-
-        document.addEventListener('unload', function (event) {
-          window.removeEventListener('error'); // window.removeEventListener('unhandledrejection')
+        document.addEventListener('unload', function () {
+          window.removeEventListener('error', errors.watchJsErr);
+          window.removeEventListener('unhandledrejection', errors.unhandledRej);
+        });
+      },
+      mark: function mark(name) {
+        report({
+          name: name,
+          duration: +new Date() - performance.timing.navigationStart(),
+          type: 'mark'
         });
       }
     };
