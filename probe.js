@@ -284,6 +284,17 @@ var probe = (function () {
               h: this.h,
               type: 1
             });
+          } else {
+            // 静态资源加载错误
+            report({
+              path: event.path.reverse(),
+              target: event.target,
+              timeStamp: event.timeStamp,
+              filename: event.srcElement.baseURI,
+              src: event.srcElement.src,
+              html: event.srcElement.outerHTML,
+              type: 1
+            });
           }
         }
       }, {
